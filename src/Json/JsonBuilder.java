@@ -9,7 +9,7 @@ public class JsonBuilder implements JsonValue {
 
     public JsonBuilder() {
         v=parseValue();
-
+        System.out.println("HELLOO");
 
 
     }
