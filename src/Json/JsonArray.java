@@ -6,12 +6,12 @@ import java.util.List;
 public class JsonArray implements JsonValue{
     private List<JsonValue> a = new ArrayList<JsonValue>();
     @Override
-    public JsonValue get(int i) throws JsonSyntaxException {
+    public JsonValue get(int i) {
         return null;
     }
 
     @Override
-    public JsonValue get(String s) throws JsonSyntaxException {
+    public JsonValue get(String s) {
         return null;
     }
 
@@ -21,5 +21,9 @@ public class JsonArray implements JsonValue{
 
     public void setA(List<JsonValue> a) {
         this.a = a;
+    }
+    public String toString()
+    {
+    	return a.toString();
     }
 }
