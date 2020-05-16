@@ -33,11 +33,9 @@ public class JsonObject implements JsonValue {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append('{');
-        int i=0;
         for(String key : o.keySet())
         {
         	sb.append("<" + key + ":" + o.get(key)+">");
-        	i++;
         }
         sb.append('}');
         return sb.toString();

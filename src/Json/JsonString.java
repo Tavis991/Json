@@ -8,13 +8,13 @@ public class JsonString implements JsonValue{
 		this.s = s;
 	}
     @Override
-    public JsonValue get(int i) {
-        return null;
+    public JsonValue get(int i) throws JsonQueryException{
+        throw new JsonQueryException("JsonString can't return value by index");
     }
 
     @Override
-    public JsonValue get(String s) {
-        return null;
+    public JsonValue get(String s) throws JsonQueryException{
+    	throw new JsonQueryException("JsonString can't return value by index");
     }
     public String toString()
     {
