@@ -1,1 +1,8 @@
-["abraham","sarah"]
+{ "name" : "Avraham",
+ "wives" : ["Hagar", "Sarah", "Ketura"],
+ "issue" : {"Hagar" : ["Yishmael"],
+ "Sarah" : ["Yitskhak"],
+ "Ketura" : ["Zimran", "Jokshan", "Medan", "Midian",
+"Ishbak", "Shuah"]
+ }
+} 

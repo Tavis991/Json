@@ -31,14 +31,15 @@ public class JsonBuilder implements JsonValue {
         while(cs.hasNext())
         {
         	ch1=ch2;
+        	
         	if(cs.hasNext()) ch2=cs.next();
         	else break;
-        	if(ch2=='"' && ch1 !='\'') break;
+        	if(ch2=='"' && ch1 !='\\') break;
+        	if(ch2=='\\' && cs.peek() == '"') continue;
             build.append(ch2);
 
         }
         Jstr.setS(build.toString());
-        System.out.println(Jstr.getS());
         return Jstr;
     }
         
@@ -46,36 +47,29 @@ public class JsonBuilder implements JsonValue {
     public JsonArray parseArray() throws JsonSyntaxException{
 
         JsonArray arr = new JsonArray();
-       // arr.getA().add(parseValue());
         cs.next();
         while (cs.hasNext() && cs.peek()!=']')
         {
                 try 
                 {
                     arr.getA().add(parseValue());
-                    while(((Character)cs.peek()).equals(',')||((Character)cs.peek()).equals(' ')) 
-                    {
-                        if (cs.hasNext()) cs.next();
-                        else throw new JsonSyntaxException("Error in parseArray()");
-                    }
-
-                 }
-                 catch (JsonSyntaxException e) {
+                    if(cs.peek()==',') cs.next();
+                }
+                catch (JsonSyntaxException e) 
+                {
                     e.printStackTrace();
                 }
         }
+        cs.next();
         return arr;
     }
     public JsonValue parseValue() throws JsonSyntaxException{
-        char ch;
         String choice;
-        if (this.cs.hasNext()) 
+        if (cs.hasNext()) 
         {
-            ch = this.cs.peek();
-            
             try
             {
-            	choice = chCheck(ch);
+            	choice = chCheck(cs.peek());
             }
             catch (JsonSyntaxException e)
             {
@@ -98,10 +92,27 @@ public class JsonBuilder implements JsonValue {
         else throw new JsonSyntaxException("Error in parseValue()");
     }
     
-    public JsonObject parseObject()
+    public JsonObject parseObject() throws JsonSyntaxException
     {
     	JsonObject jo = new JsonObject();
-    	// TODO
+    	String key;
+    	JsonValue value;
+    	cs.next(); 
+    	while(cs.hasNext() && cs.peek()!='}')
+    	{
+    		try
+    		{
+    			key = parseString().getS();
+    			cs.next();
+    			value = parseValue();
+    			cs.next();
+    			jo.getO().put(key, value);
+    		}
+    		catch(JsonSyntaxException e)
+    		{
+    			throw e;
+    		}
+    	}
     	return jo;
     }
 
@@ -128,8 +139,24 @@ public class JsonBuilder implements JsonValue {
         return "nothing";
        // throw new JsonSyntaxException("unknown character. Error in chCheck()");
     }
+    
+    public String strtCheck(char ch) throws JsonSyntaxException {
+        if (ch == '[') {
+            return "ArrayStart";
+        }
+        if (isDigit(ch) || ch == '-'){
+            return "Num";
+        }
+        if (ch == '"') {
+            return "Str";
+        }
+        if (ch == '{') {
+            return "AssoArrayStart";
+        }
+        throw new  JsonSyntaxException("no possible");
+    }
+    
     @Override
-
     public JsonValue get(int i) {
         return null;
     }

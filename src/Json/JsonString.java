@@ -18,6 +18,6 @@ public class JsonString implements JsonValue{
     }
     public String toString()
     {
-    	return s;
+    	return "<" + s + ">";
     }
 }
