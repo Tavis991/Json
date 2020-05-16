@@ -170,7 +170,7 @@ public class JsonBuilder implements JsonValue {
         return (ch=='E' || ch=='e');
 
     }
-public JsonNumber parseNumber() throws JsonSyntaxException{
+    public JsonNumber parseNumber() throws JsonSyntaxException{
 
     //Map <String,Integer> flags= new HashMap<String, Integer> ();
     //flags.put("flagMinus",0); flags.put("flagPlus",1); flags.put("flagE",0); flags.put("flagDot",0);
@@ -182,21 +182,26 @@ public JsonNumber parseNumber() throws JsonSyntaxException{
     char cnPs, cnNs =' ';
     cnPs=cs.next();
 
-    if (cnPs=='-'){
+    if (cnPs=='-')
+    {
         flagMinus++;
         bild.append(cnPs);
-        if (cs.hasNext() && numCheck(cs.peek())){
-            cnPs=cs.next();
-        }
+        if (cs.hasNext() && numCheck(cs.peek())) cnPs=cs.next();
     }
 
-    while (cs.hasNext()){
-        if(numCheck(cs.peek())){
-            try {
+    while (cs.hasNext())
+    {
+        if(numCheck(cs.peek()))
+        {
+            try 
+            {
                 cnNs=cs.next();
-                if (cnPs=='-' || cnPs=='+') {
-                    if (isDigit(cnNs)) {
-                        if (cnPs=='-'){
+                if (isOp(cnPs)) 
+                {
+                    if ((isDigit(cnNs)&& isE(bild.charAt(bild.length()-1))))
+                    {
+                        if (cnPs=='-')
+                        {
                             if(++flagMinus>2) throw new JsonSyntaxException("notminus");
                         }
                         else if(++flagPlus>2) throw new JsonSyntaxException("notplus");
@@ -206,54 +211,55 @@ public JsonNumber parseNumber() throws JsonSyntaxException{
                     }
                     else throw new JsonSyntaxException("not+-");
                 }
-                if (isE(cnPs)) {
-                    if (isDigit(cnNs) || isOp(cnNs)) {
-                        if(++flagE>1){
-                            throw new JsonSyntaxException("notE");
-                        }
+                if (isE(cnPs)) 
+                {
+                    if (isDigit(cnNs) || isOp(cnNs)) 
+                    {
+                        if(++flagE>1) throw new JsonSyntaxException("notE");
                         bild.append(cnPs);
                         cnPs=cnNs;
                         continue;
                     }
                     else throw new JsonSyntaxException("noE");
                 }
-                if (cnPs=='.'){
-                    if (isDigit(cnNs)) {
-                        if(++flagDot>1){
-                            throw new JsonSyntaxException("notdot");
-                        }
+                if (cnPs=='.')
+                {
+                    if (isDigit(cnNs)) 
+                    {
+                        if(++flagDot>1) throw new JsonSyntaxException("notdot");
                         bild.append(cnPs);
                         cnPs=cnNs;
                         continue;
                     }
-
                     else throw new JsonSyntaxException("notdot");
                 }
-                if (isDigit(cnPs)){
+                if (isDigit(cnPs))
+                {
                     bild.append(cnPs);
                     cnPs=cnNs;
                     continue;
                 }
             }
-            catch (JsonSyntaxException e) {
-                e.printStackTrace();
+            catch (JsonSyntaxException e) 
+            {
+                throw e;
             }
         }
-        else{
-            if (isDigit(cnNs)){
+        else
+        {
+            if (isDigit(cnNs))
+            {
                 bild.append(cnNs);
-                break; }
-        else throw new JsonSyntaxException("end bad");}
+                break; 
+            }
+            else throw new JsonSyntaxException("end bad");
+        }
 
     }
     String tmp = bild.toString();
     Number temp;
-    if ((flagE+flagDot)!=0) {
-        temp = Double.parseDouble(tmp);
-    }
-    else {
-        temp =Integer.parseInt(tmp);
-    }
+    if ((flagE+flagDot)!=0) temp = Double.parseDouble(tmp);
+    else temp =Integer.parseInt(tmp);
 
     return new JsonNumber(temp);
 }
