@@ -9,7 +9,7 @@ public class JsonBuilder implements JsonValue {
     private CharScanner cs;
     private JsonValue v;
 
-    public JsonBuilder() {
+    public JsonBuilder() throws JsonSyntaxException {
         v=parseValue();
 
 
@@ -52,7 +52,7 @@ public class JsonBuilder implements JsonValue {
         StringBuilder bild = new StringBuilder();
         JsonNumber Jnum = new JsonNumber();
         while (cs.hasNext()){
-            if((chCheck(cs.peek())=="Num") || testE(cs.peek()) || cs.peek()=='.'){
+            if((chCheck(cs.peek())=="Num") || isE(cs.peek()) || cs.peek()=='.'){
                 try {
                     bild.append(cs.next());
                     while(((Character)cs.peek()).equals(',')||((Character)cs.peek()).equals(' ')) {
@@ -72,10 +72,11 @@ public class JsonBuilder implements JsonValue {
 
             }
         }
+        bild.toString();
         return Jnum;
     }
 
-    public boolean testE(char e){
+    public boolean isE(char e){
         if (e=='e' || e=='E'){
             return true;
         }
@@ -111,7 +112,7 @@ public class JsonBuilder implements JsonValue {
         char ch;
         if (this.cs.hasNext()) {
             ch = this.cs.peek();
-            switch (chCheck(ch)) {
+            switch (strtCheck(ch)) {
                 case "ArrayStart":
                     return parseArray();
                 case "Str":
@@ -120,15 +121,29 @@ public class JsonBuilder implements JsonValue {
 
                 case "Num":
 
-
-
             }
-            ;
+
 
         }
-
+        throw new JsonSyntaxException("kelet lo takin");
     }
 
+    public String strtCheck(char ch) throws JsonSyntaxException {
+        if (ch == '[') {
+            return "ArrayStart";
+        }
+        if (isDigit(ch) || ch == '-'){
+            return "Num";
+        }
+        if (ch == '"') {
+            return "Str";
+        }
+
+        if (ch == '{') {
+            return "AssoArrayStart";
+        }
+        throw new  JsonSyntaxException("no possible");
+    }
     public String chCheck(char ch) {
 
         if (isDigit(ch) || ch == '-'){
