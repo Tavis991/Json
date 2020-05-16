@@ -1,4 +1,4 @@
-{ "name" : "Avraham", "age": -18.2e-2,
+{ "name" : "Avraham", "age": -2211e9,
  "wives" : ["Hagar", "Sarah", "Ketura"],
  "issue" : {"Hagar" : ["Yishmael"],
  "Sarah" : ["Yitskhak"],

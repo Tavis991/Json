@@ -237,7 +237,7 @@ public JsonNumber parseNumber() throws JsonSyntaxException{
             }
             catch (JsonSyntaxException e) {
                 e.printStackTrace();
-                break;
+                throw new JsonSyntaxException("number not legal");
             }
         }
         else{
