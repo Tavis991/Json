@@ -17,4 +17,9 @@ public class JsonNumber implements JsonValue {
     public JsonValue get(String s) {
         return null;
     }
+
+    @Override
+    public String toString() {
+        return k.toString();
+    }
 }

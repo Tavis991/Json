@@ -11,7 +11,7 @@ public class JsonBuilder implements JsonValue {
     private JsonValue v;
 
     public JsonBuilder() throws FileNotFoundException {
-    	cs = new CharScanner(new File("C:\\Users\\אדיר\\adir\\Json Final\\Json\\src\\Json\\example.txt"));
+    	cs = new CharScanner(new File("example.txt"));
 
         try
         {
@@ -160,15 +160,15 @@ public class JsonBuilder implements JsonValue {
     public boolean numCheck(char ch){
 
         if (isDigit(ch) || isE(ch)) return true;
-        if ((ch=='-') || (ch=='+')  || (ch=='.')) return true;
+        if (ch=='-' || ch=='+' || ch=='.') return true;
         return false;
     }
-
+    public  boolean isOp(char cnNs){
+        return (cnNs=='-' || cnNs=='+');
+    }
     private boolean isE(char ch) {
-        if (ch=='E' || ch=='e'){
-            return true;
-        }
-        return false;
+        return (ch=='E' || ch=='e');
+
     }
 public JsonNumber parseNumber() throws JsonSyntaxException{
 
@@ -178,56 +178,73 @@ public JsonNumber parseNumber() throws JsonSyntaxException{
     int flagPlus=1;
     int flagE=0;
     int flagDot=0;
-
     StringBuilder bild = new StringBuilder();
-
     char cnPs, cnNs =' ';
     cnPs=cs.next();
+
     if (cnPs=='-'){
         flagMinus++;
+        bild.append(cnPs);
+        if (cs.hasNext() && numCheck(cs.peek())){
+            cnPs=cs.next();
+        }
     }
 
-    bild.append(cnPs);
     while (cs.hasNext()){
         if(numCheck(cs.peek())){
             try {
                 cnNs=cs.next();
                 if (cnPs=='-' || cnPs=='+') {
-                    if (isE(cnNs)) {
+                    if (isDigit(cnNs)) {
                         if (cnPs=='-'){
-                            if(flagMinus++>2) throw new JsonSyntaxException("notminus");
+                            if(++flagMinus>2) throw new JsonSyntaxException("notminus");
                         }
-                        else if(flagPlus++>2) throw new JsonSyntaxException("notplus");
+                        else if(++flagPlus>2) throw new JsonSyntaxException("notplus");
                         bild.append(cnPs);
                         cnPs=cnNs;
+                        continue;
                     }
                     else throw new JsonSyntaxException("not+-");
                 }
                 if (isE(cnPs)) {
-                    if (isDigit(cnNs)) {
-                        if(flagE++>1){
+                    if (isDigit(cnNs) || isOp(cnNs)) {
+                        if(++flagE>1){
                             throw new JsonSyntaxException("notE");
-                        };
+                        }
                         bild.append(cnPs);
                         cnPs=cnNs;
+                        continue;
                     }
                     else throw new JsonSyntaxException("noE");
                 }
                 if (cnPs=='.'){
                     if (isDigit(cnNs)) {
-                        if(flagDot++>1){
+                        if(++flagDot>1){
                             throw new JsonSyntaxException("notdot");
                         }
                         bild.append(cnPs);
                         cnPs=cnNs;
+                        continue;
                     }
+
                     else throw new JsonSyntaxException("notdot");
+                }
+                if (isDigit(cnPs)){
+                    bild.append(cnPs);
+                    cnPs=cnNs;
+                    continue;
                 }
             }
             catch (JsonSyntaxException e) {
                 e.printStackTrace();
             }
         }
+        else{
+            if (isDigit(cnNs)){
+                bild.append(cnNs);
+                break; }
+        else throw new JsonSyntaxException("end bad");}
+
     }
     String tmp = bild.toString();
     Number temp;
@@ -238,8 +255,7 @@ public JsonNumber parseNumber() throws JsonSyntaxException{
         temp =Integer.parseInt(tmp);
     }
 
-    JsonNumber Jnum = new JsonNumber(temp);
-    return Jnum;
+    return new JsonNumber(temp);
 }
 
     
