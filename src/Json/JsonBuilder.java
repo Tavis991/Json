@@ -1,5 +1,7 @@
 package Json;
 
+import java.awt.*;
+
 import static java.lang.Character.compare;
 import static java.lang.Character.isDigit;
 
@@ -17,6 +19,7 @@ public class JsonBuilder implements JsonValue {
     public JsonString parseString() throws JsonSyntaxException{
         StringBuilder bild = new StringBuilder();
         JsonString Jstr = new JsonString();
+
         while (cs.hasNext()){
             while(chCheck(cs.peek())!="Str"){
                 try {
@@ -28,17 +31,55 @@ public class JsonBuilder implements JsonValue {
                         else{
                             throw new JsonSyntaxException("kelet lo takin");
                         }
+
                     }
                 catch (JsonSyntaxException e) {
                     e.printStackTrace();
                 }
+
                 }
 
 
 
             }
+        return Jstr;
         }
-        return arr;
+
+    public JsonNumber parseNumber() throws JsonSyntaxException{
+        boolean flagMinus;
+        boolean flagE;
+        boolean flagDot;
+        StringBuilder bild = new StringBuilder();
+        JsonNumber Jnum = new JsonNumber();
+        while (cs.hasNext()){
+            if((chCheck(cs.peek())=="Num") || testE(cs.peek()) || cs.peek()=='.'){
+                try {
+                    bild.append(cs.next());
+                    while(((Character)cs.peek()).equals(',')||((Character)cs.peek()).equals(' ')) {
+                        if (cs.hasNext()){
+                            cs.next();
+                        }
+                        else{
+                            throw new JsonSyntaxException("kelet lo takin");
+                        }
+                    }
+
+                }
+                catch (JsonSyntaxException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        }
+        return Jnum;
+    }
+
+    public boolean testE(char e){
+        if (e=='e' || e=='E'){
+            return true;
+        }
+        return false;
     }
     public JsonArray parseArray() throws JsonSyntaxException{
 
@@ -90,7 +131,7 @@ public class JsonBuilder implements JsonValue {
 
     public String chCheck(char ch) {
 
-        if (isDigit(ch) || ch == '-') {
+        if (isDigit(ch) || ch == '-'){
             return "Num";
         }
         if (ch == '[') {
