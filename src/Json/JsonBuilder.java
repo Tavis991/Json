@@ -194,8 +194,9 @@ public JsonNumber parseNumber() throws JsonSyntaxException{
         if(numCheck(cs.peek())){
             try {
                 cnNs=cs.next();
-                if (cnPs=='-' || cnPs=='+') {
-                    if (isDigit(cnNs)) {
+                if (isOp(cnPs)) {
+                    if ((isDigit(cnNs)&& isE(bild.charAt(bild.length()-1))))
+                    {
                         if (cnPs=='-'){
                             if(++flagMinus>2) throw new JsonSyntaxException("notminus");
                         }
@@ -226,7 +227,6 @@ public JsonNumber parseNumber() throws JsonSyntaxException{
                         cnPs=cnNs;
                         continue;
                     }
-
                     else throw new JsonSyntaxException("notdot");
                 }
                 if (isDigit(cnPs)){
@@ -237,6 +237,7 @@ public JsonNumber parseNumber() throws JsonSyntaxException{
             }
             catch (JsonSyntaxException e) {
                 e.printStackTrace();
+                break;
             }
         }
         else{
