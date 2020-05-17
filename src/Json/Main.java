@@ -9,13 +9,16 @@ public class Main {
 
 		JsonBuilder k = null;
 		
-		try {
+		try 
+		{
 			k = new JsonBuilder();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			System.out.println(k.getV());
+		} 
+		catch (FileNotFoundException | JsonSyntaxException e)  
+		{
 			e.printStackTrace();
 		}
 
-    	System.out.println(k.getV());
+    	
     }
 }

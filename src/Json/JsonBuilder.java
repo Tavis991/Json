@@ -6,82 +6,89 @@ import java.lang.Integer;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-public class JsonBuilder implements JsonValue {
+public class JsonBuilder implements JsonValue{
     private CharScanner cs;
     private JsonValue v;
 
-    public JsonBuilder() throws FileNotFoundException {
+    public JsonBuilder() throws FileNotFoundException, JsonSyntaxException
+    {
     	cs = new CharScanner(new File("example.txt"));
-
-        try
-        {
-        	v = parseValue();
-        }
-        catch(Exception e)
-        {
-        	e.printStackTrace();
-        }
+        v = parseValue();
     }
 
     public JsonString parseString() throws JsonSyntaxException
     {
-        StringBuilder build = new StringBuilder();
+        StringBuilder build = new StringBuilder(); // will build the string for Jstr
         JsonString Jstr = new JsonString();
-        char ch1,ch2=' ';
-        cs.next();
+        char current;
+        boolean inside_string = false;
+        cs.next(); // reading the first "
         while(cs.hasNext())
         {
-        	ch1=ch2;
+        	current = cs.next();
         	
-        	if(cs.hasNext()) ch2=cs.next();
-        	else break;
-        	if(ch2=='"' && ch1 !='\\') break;
-        	if(ch2=='\\' && cs.peek() == '"') continue;
-            build.append(ch2);
-
+        	// if (current = '\') there is 2 legal options after it: " or \
+        	if(current=='\\')
+        	{
+        		if(cs.peek()=='"')
+        		{
+        			// every \" have 2 options meaning: starting or ending an inside string
+            		inside_string=!inside_string; // true->false , false -> true
+            		continue;         			
+        		}
+        		else if(cs.peek()=='\\')
+        		{	
+        			build.append(current);
+        			cs.next();
+        			continue;
+        		}
+        		
+        		// illegal option
+        		else throw new JsonSyntaxException("Error in parseString(): \\ with no context");
+        	}
+        	
+        	// if not \ and there is " after we finish the string
+        	else if (cs.peek()=='"') 
+        	{
+        		build.append(current);
+        		break;
+        	}
+        	build.append(current);     	
         }
+        cs.next(); // reading the last "
+        if(inside_string==true) throw new JsonSyntaxException("Error in parseString(): inside string never closed");
         Jstr.setS(build.toString());
         return Jstr;
     }
         
     
-    public JsonArray parseArray() throws JsonSyntaxException{
-
+    public JsonArray parseArray() throws JsonSyntaxException
+    {
         JsonArray arr = new JsonArray();
-        cs.next();
-        while (cs.hasNext() && cs.peek()!=']')
+        cs.next(); // reading the '['
+        char ch;
+        while (cs.hasNext())
         {
-                try 
-                {
-                    arr.getA().add(parseValue());
-                    if(cs.peek()==',') cs.next();
-                }
-                catch (JsonSyntaxException e) 
-                {
-                    e.printStackTrace();
-                }
+            arr.getA().add(parseValue()); // adding the next JsonValue to arr
+            ch = cs.next();
+            if(ch==']') break;
+            if(ch!=',') throw new JsonSyntaxException("Error in parseArray(): ',' missing ");
+            // TODO : what after , ??????
         }
-        cs.next();
         return arr;
     }
-    public JsonValue parseValue() throws JsonSyntaxException{
+    
+    public JsonValue parseValue() throws JsonSyntaxException
+    {
         String choice;
-        if (cs.hasNext()) 
+        if (cs.hasNext())
         {
-            try
-            {
-            	choice = chCheck(cs.peek());
-            }
-            catch (JsonSyntaxException e)
-            {
-            	throw e;
-            }
-            	
+            choice = chCheck(cs.peek());
             switch (choice) 
             {
                 case "ArrayStart":
                     return parseArray();
-                case "Str":
+                case "StrStart":
                 	return parseString();
                 case "AssoArrayStart":
                 	return parseObject();
@@ -98,21 +105,22 @@ public class JsonBuilder implements JsonValue {
     	JsonObject jo = new JsonObject();
     	String key;
     	JsonValue value;
-    	cs.next(); 
-    	while(cs.hasNext() && cs.peek()!='}')
+    	char ch;
+    	cs.next(); // reading the '{'
+    	
+    	while(cs.hasNext())
     	{
-    		try
-    		{
-    			key = parseString().getS();
-    			cs.next();
-    			value = parseValue();
-    			cs.next();
-    			jo.getO().put(key, value);
-    		}
-    		catch(JsonSyntaxException e)
-    		{
-    			throw e;
-    		}
+    		if(cs.peek()!='"') throw new JsonSyntaxException("Error in parseObject(): key is not a String");
+    		key = parseString().getS();
+    		ch = cs.next();
+    		if(ch!=':') throw new JsonSyntaxException("Error in parseObject(): ':' missing");
+    		// TODO : what is after : ?????
+    		value = parseValue();
+    		jo.getO().put(key, value);
+    		ch = cs.next();
+    		if(ch=='}') break;
+    		if(ch!=',') throw new JsonSyntaxException("Error in parseObject(): ',' missing");
+    		// TODO : what is after , ?????
     	}
     	return jo;
     }
@@ -135,7 +143,7 @@ public class JsonBuilder implements JsonValue {
             return "AssoArrayEnd";
         }
         if (ch == '"') {
-            return "Str";
+            return "StrStart";
         }
         return "nothing";
        // throw new JsonSyntaxException("unknown character. Error in chCheck()");
