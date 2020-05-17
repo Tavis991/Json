@@ -10,7 +10,7 @@ public class Main {
 		JsonBuilder k = null;
 		
 		try {
-			k = new JsonBuilder();
+			k = new JsonBuilder(args[0]);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

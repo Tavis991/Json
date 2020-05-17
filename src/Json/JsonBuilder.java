@@ -10,8 +10,8 @@ public class JsonBuilder implements JsonValue {
     private CharScanner cs;
     private JsonValue v;
 
-    public JsonBuilder() throws FileNotFoundException {
-    	cs = new CharScanner(new File("example.txt"));
+    public JsonBuilder(String filename) throws FileNotFoundException {
+    	cs = new CharScanner(new File(filename));
 
         try
         {
