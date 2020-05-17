@@ -175,11 +175,17 @@ public JsonNumber parseNumber() throws JsonSyntaxException{
     char cnPs, cnNs =' ';
     cnPs=cs.next();
 
-    if (cnPs=='-'){
-        flagMinus++;
-        bild.append(cnPs);
-        if (cs.hasNext() && numCheck(cs.peek())){
-            cnPs=cs.next();
+    //check special initial conditions
+    switch (cnPs) {
+        case ('-'): {
+            flagMinus++;
+            bild.append(cnPs);
+            if (cs.hasNext() && numCheck(cs.peek())) { cnPs = cs.next(); }
+        }
+        case ('0'): {
+            if (cs.hasNext() && !(cs.peek() == '.')) {
+                throw new JsonSyntaxException("Json whole numbers cannot begin with zero");
+          }
         }
     }
     //main loop, reads chars and confirms Json number syntax, throws exception else
@@ -226,7 +232,7 @@ public JsonNumber parseNumber() throws JsonSyntaxException{
         }
 
         else{
-            if (isDigit(cnNs)){
+            if (isDigit(cnNs) || cnNs=='.'){
                 bild.append(cnNs);
                 break;
             }
