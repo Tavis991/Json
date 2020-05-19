@@ -60,7 +60,30 @@ public class CharScanner
       this.h = ( c != -1 );
       this.c = (char) c;
    }
+   
+   private void readWithSpaces()
+   {
+      int c;
+      do
+      {
+         try
+         {
+            c = is.read();
+         }
+         catch( IOException e )
+         {
+            e.printStackTrace();
+            c = -1;
+         }
+      }
+      while( ( c != -1 ) && 
+    		 ( ( c == '\n' ) || 
+    		   ( c == '\r' ) || 
+    		   ( c == '\t' ) ) );
 
+      this.h = ( c != -1 );
+      this.c = (char) c;
+   }
    public boolean hasNext()
    {
       return( h );
@@ -71,6 +94,14 @@ public class CharScanner
       char n = c;
 //      System.out.print(c);
       read();
+      return( n );
+   }
+   
+   public char nextWithSpaces()
+   {
+      char n = c;
+//      System.out.print(c);
+      readWithSpaces();
       return( n );
    }
 

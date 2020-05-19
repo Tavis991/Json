@@ -25,7 +25,7 @@ public class JsonBuilder implements JsonValue{
         cs.next(); // reading the first "
         while(cs.hasNext())
         {
-        	current = cs.next();
+        	current = cs.nextWithSpaces();
         	
         	// if (current = '\') there is 2 legal options after it: " or \
         	if(current=='\\')
@@ -72,8 +72,10 @@ public class JsonBuilder implements JsonValue{
             arr.getA().add(parseValue()); // adding the next JsonValue to arr
             ch = cs.next();
             if(ch==']') break;
-            if(ch!=',') throw new JsonSyntaxException("Error in parseArray(): ',' missing ");
-            // TODO : what after , ??????
+            if(!cs.hasNext()) throw new JsonSyntaxException("Error in parseArray(): ']' missing ");
+            if(ch!=',') throw new JsonSyntaxException("Error in parseArray(): ',' or ']' is missing ");
+            else if(chCheck(cs.peek())=="nothing") 
+            	throw new JsonSyntaxException("Error in parseArray(): illegal char after ','");
         }
         return arr;
     }
@@ -110,17 +112,26 @@ public class JsonBuilder implements JsonValue{
     	
     	while(cs.hasNext())
     	{
+    		/* Building the key */
     		if(cs.peek()!='"') throw new JsonSyntaxException("Error in parseObject(): key is not a String");
     		key = parseString().getS();
+    		
+    		/* Making sure value is ok, building it if yes */
     		ch = cs.next();
-    		if(ch!=':') throw new JsonSyntaxException("Error in parseObject(): ':' missing");
-    		// TODO : what is after : ?????
+    		if(ch!=':') throw new JsonSyntaxException("Error in parseObject(): ':' is missing");
+    		else if(chCheck(cs.peek())=="nothing")
+    			throw new JsonSyntaxException("Error in parseObject(): illegal char after ':' ");
     		value = parseValue();
-    		jo.getO().put(key, value);
-    		ch = cs.next();
+    		
+    		jo.getO().put(key, value); // put (key:value) in JsonObject's map
+    		
+    		/* reading next char, should be ',' or '}' , with no additional chars, otherwise throws exception */
+    		ch = cs.next(); 
     		if(ch=='}') break;
-    		if(ch!=',') throw new JsonSyntaxException("Error in parseObject(): ',' missing");
-    		// TODO : what is after , ?????
+    		if(!cs.hasNext()) throw new JsonSyntaxException("Error in parseObject(): '}' is missing");
+    		if(ch!=',') throw new JsonSyntaxException("Error in parseObject(): ',' or '}' is missing");
+    		else if(chCheck(cs.peek())=="nothing")
+    			throw new JsonSyntaxException("Error in parseObject(): illegal char after ',' ");
     	}
     	return jo;
     }
@@ -133,38 +144,17 @@ public class JsonBuilder implements JsonValue{
         if (ch == '[') {
             return "ArrayStart";
         }
-        if (ch == ']') {
-            return "ArrayEnd";
-        }
         if (ch == '{') {
             return "AssoArrayStart";
-        }
-        if (ch == '}') {
-            return "AssoArrayEnd";
         }
         if (ch == '"') {
             return "StrStart";
         }
         return "nothing";
-       // throw new JsonSyntaxException("unknown character. Error in chCheck()");
-    }
-    //Json parsenumber helper functions
-    public String strtCheck(char ch) throws JsonSyntaxException {
-        if (ch == '[') {
-            return "ArrayStart";
-        }
-        if (isDigit(ch) || ch == '-'){
-            return "Num";
-        }
-        if (ch == '"') {
-            return "Str";
-        }
-        if (ch == '{') {
-            return "AssoArrayStart";
-        }
-        throw new  JsonSyntaxException("no possible");
     }
     
+    
+    //parseNumber() helper functions
     public boolean numCheck(char ch){
 
         if (isDigit(ch) || isE(ch)|| isOp(ch)) return true;
@@ -176,7 +166,7 @@ public class JsonBuilder implements JsonValue{
     }
     public boolean isE(char ch) { return (ch=='E' || ch=='e'); }
 
-    //Json parsenumber function, flags known and legit values
+    //parseNumber() function, flags known and legit values
 public JsonNumber parseNumber() throws JsonSyntaxException{
     int flagMinus=0, flagE=0, flagDot=0, flagPlus=1;;
     StringBuilder bild = new StringBuilder();
@@ -246,7 +236,7 @@ public JsonNumber parseNumber() throws JsonSyntaxException{
     else { temp = Integer.parseInt(bild.toString()); }
 
     return new JsonNumber(temp);
-}
+	}
 
     
     @Override

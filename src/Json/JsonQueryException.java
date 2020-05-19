@@ -1,9 +1,12 @@
 package Json;
 
 public class JsonQueryException extends Exception {
-	String error;
-	public JsonQueryException(String error)
+	public JsonQueryException(String message)
 	{
-		this.error = error;
+		super(message);
+	}
+	public JsonQueryException()
+	{
+		super();
 	}
 }

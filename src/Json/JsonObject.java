@@ -20,13 +20,13 @@ public class JsonObject implements JsonValue {
 	}
 
 	@Override
-    public JsonValue get(int i)  {
-        return null;
+    public JsonValue get(int i) throws JsonQueryException  {
+        throw new JsonQueryException("JsonObject can not return value by index");
     }
 
     @Override
     public JsonValue get(String s) {
-        return null;
+        return this.o.get(s);
     }
 
     @Override
