@@ -14,7 +14,7 @@ public class JsonString implements JsonValue{
 
     @Override
     public JsonValue get(String s) throws JsonQueryException{
-    	throw new JsonQueryException("JsonString can't return value by index");
+    	throw new JsonQueryException("JsonString can't return value by String");
     }
     public String toString()
     {

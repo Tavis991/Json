@@ -10,12 +10,12 @@ public class JsonNumber implements JsonValue {
     @Override
 
     public JsonValue get(int i) throws JsonQueryException {
-        throw new JsonQueryException("nonono");
+        throw new JsonQueryException("JsonNumber can not return value by index");
     }
 
     @Override
-    public JsonValue get(String s) {
-        return null;
+    public JsonValue get(String s) throws JsonQueryException{
+    	throw new JsonQueryException("JsonNumber can not return value by String");
     }
 
     @Override

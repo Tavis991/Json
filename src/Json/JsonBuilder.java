@@ -166,77 +166,92 @@ public class JsonBuilder implements JsonValue{
     }
     public boolean isE(char ch) { return (ch=='E' || ch=='e'); }
 
-    //parseNumber() function, flags known and legit values
+    //Json parsenumber function, flags known and legit values
 public JsonNumber parseNumber() throws JsonSyntaxException{
     int flagMinus=0, flagE=0, flagDot=0, flagPlus=1;;
     StringBuilder bild = new StringBuilder();
     char cnPs, cnNs =' ';
     cnPs=cs.next();
 
-    if (cnPs=='-'){
-        flagMinus++;
-        bild.append(cnPs);
-        if (cs.hasNext() && numCheck(cs.peek())){
-            cnPs=cs.next();
+    //check special initial conditions
+    switch (cnPs) 
+    {
+        case ('-'): 
+        {
+            flagMinus++;
+            bild.append(cnPs);
+            if (cs.hasNext() && numCheck(cs.peek())) cnPs = cs.next();
+        }
+        case ('0'): 
+        {
+            if (cs.hasNext() && !(cs.peek() == '.'))
+                throw new JsonSyntaxException("Json whole numbers cannot begin with zero");
+
         }
     }
     //main loop, reads chars and confirms Json number syntax, throws exception else
-    while (cs.hasNext()){
-        if(numCheck(cs.peek())){
-            try {
-                    cnNs=cs.next();
-                    if (isOp(cnPs)) {
-                        if ((isDigit(cnNs)&& isE(bild.charAt(bild.length()-1))))
-                        {
-                            if (cnPs=='-'){ if(++flagMinus>2) throw new JsonSyntaxException("notminus"); }
-                            else if(++flagPlus>2) throw new JsonSyntaxException("notplus");
-                            bild.append(cnPs);
-                            cnPs=cnNs;
-                            continue;
-                        }
-                        else throw new JsonSyntaxException("not+-");
-                    }
-                    if (isE(cnPs)) {
-                        if (isDigit(cnNs) || isOp(cnNs)) {
-                            if(++flagE>1) throw new JsonSyntaxException("notE");
-                            bild.append(cnPs);
-                            cnPs=cnNs;
-                            continue;
-                        }
-                        else throw new JsonSyntaxException("noE");
-                    }
-                    if (cnPs=='.'){
-                        if (isDigit(cnNs)) {
-                            if(++flagDot>1) throw new JsonSyntaxException("notdot");
-                            bild.append(cnPs);
-                            cnPs=cnNs;
-                            continue;
-                        }
-                        else throw new JsonSyntaxException("notdot");
-                    }
-                    if (isDigit(cnPs)){
-                        bild.append(cnPs);
-                        cnPs=cnNs;
-                        continue;
-                    }
-                 }
-            catch (JsonSyntaxException e) { e.printStackTrace(); throw new JsonSyntaxException("number not legal"); }
-        }
-
-        else{
-            if (isDigit(cnNs)){
-                bild.append(cnNs);
-                break;
+    while (cs.hasNext())
+    {
+        if(numCheck(cs.peek()))
+        {	
+            cnNs=cs.next();
+            if (isOp(cnPs)) 
+            {
+            	if ((isDigit(cnNs)&& isE(bild.charAt(bild.length()-1))))
+                {
+                    if (cnPs=='-'){ if(++flagMinus>2) throw new JsonSyntaxException("notminus"); }
+                    else if(++flagPlus>2) throw new JsonSyntaxException("notplus");
+                    bild.append(cnPs);
+                    cnPs=cnNs;
+                    continue;
+                }
+                else throw new JsonSyntaxException("not+-");
             }
-        else throw new JsonSyntaxException("end bad");}
-
+            if (isE(cnPs)) 
+            {
+                 if (isDigit(cnNs) || isOp(cnNs)) 
+                 {
+                      if(++flagE>1) throw new JsonSyntaxException("notE");
+                      bild.append(cnPs);
+                      cnPs=cnNs;
+                      continue;
+                 }
+                 else throw new JsonSyntaxException("noE");
+            }
+            if (cnPs=='.')
+            {
+                if (isDigit(cnNs)) 
+                {
+                    if(++flagDot>1) throw new JsonSyntaxException("notdot");
+                    bild.append(cnPs);
+                    cnPs=cnNs;
+                    continue;
+                }
+                else throw new JsonSyntaxException("notdot");
+             }
+             if (isDigit(cnPs))
+             {
+                  bild.append(cnPs);
+                  cnPs=cnNs;
+                  continue;
+              }
+             else
+             {
+            	 if (isDigit(cnNs) || cnNs=='.')
+            	 {
+            		 bild.append(cnNs);
+            		 break;
+            	 }
+            	 else throw new JsonSyntaxException("end bad");
+             }
+        }
     }
     Number temp;
-    if ((flagE+flagDot) != 0) { temp = Double.parseDouble(bild.toString()); }
-    else { temp = Integer.parseInt(bild.toString()); }
+    if ((flagE+flagDot) != 0) temp = Double.parseDouble(bild.toString());
+    else temp = Integer.parseInt(bild.toString());
 
     return new JsonNumber(temp);
-	}
+}
 
     
     @Override
